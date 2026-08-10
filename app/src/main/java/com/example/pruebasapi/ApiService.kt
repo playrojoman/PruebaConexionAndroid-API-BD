@@ -5,7 +5,7 @@ import retrofit2.http.GET
 
 interface ApiService {
 
-    @GET("producto/obtener.php")
+    @GET("producto/productos.php")
     suspend fun obtenerProductos(): Response<RespuestaApi<List<Producto>>>
 
 }

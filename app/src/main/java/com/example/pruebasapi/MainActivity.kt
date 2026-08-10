@@ -13,6 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pruebasapi.ui.theme.PruebasApiTheme
 
+import android.util.Log;
+import androidx.lifecycle.lifecycleScope;
+import kotlinx.coroutines.launch;
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +29,26 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
+            }
+        }
+        lifecycleScope.launch {
+            try {
+                val respuesta = RetrofitClient.api.obtenerProductos()
+                if (respuesta.isSuccessful) {
+                    val datos = respuesta.body()
+                    Log.d("API_TEST", "Respuesta: $datos")
+                } else {
+                    Log.e(
+                        "API_TEST",
+                        "Error HTTP: ${respuesta.code()}"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e(
+                    "API_TEST",
+                    "Error de conexión: ${e.message}",
+                    e
+                )
             }
         }
     }
