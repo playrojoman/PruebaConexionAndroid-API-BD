@@ -13,30 +13,44 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.pruebasapi.ui.theme.PruebasApiTheme
 
-import android.util.Log;
-import androidx.lifecycle.lifecycleScope;
-import kotlinx.coroutines.launch;
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 class MainActivity : ComponentActivity() {
+    //Lista de productos
+    private var productos by mutableStateOf<List<Producto>>(emptyList())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             PruebasApiTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+//                    Greeting(
+//                        name = "Android",
+//                        modifier = Modifier.padding(innerPadding)
+//                    )
+                    ListaProductos(productos = productos)
                 }
             }
         }
+
         lifecycleScope.launch {
             try {
                 val respuesta = RetrofitClient.api.obtenerProductos()
                 if (respuesta.isSuccessful) {
                     val datos = respuesta.body()
                     Log.d("API_TEST", "Respuesta: $datos")
+
+                    productos = datos?.data ?: emptyList()
                 } else {
                     Log.e(
                         "API_TEST",
@@ -50,6 +64,17 @@ class MainActivity : ComponentActivity() {
                     e
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ListaProductos(productos: List<Producto>) {
+    // Mostrar los productos
+    LazyColumn {
+        items(productos){ producto ->
+            Text(text = "${producto.Nombre} - $${producto.Precio}")
+
         }
     }
 }
