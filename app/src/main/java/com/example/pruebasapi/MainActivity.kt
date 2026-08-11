@@ -25,7 +25,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
 class MainActivity : ComponentActivity() {
-    //Lista de productos
+    // Lista de productos. Inicialmente está vacía.
+    // Al cambiar su valor, Compose detecta el cambio y recompone
+    // los componentes que leen este estado.
     private var productos by mutableStateOf<List<Producto>>(emptyList())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,26 +40,38 @@ class MainActivity : ComponentActivity() {
 //                        name = "Android",
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
+
+                    //Llama a la función de construcción de la lista
                     ListaProductos(productos = productos)
                 }
             }
         }
 
+        // Inicia una corrutina asociada al ciclo de vida del Activity.
+        // Permite realizar operaciones suspendidas, como las peticiones de red,
+        // sin bloquear el hilo principal.
         lifecycleScope.launch {
             try {
-                val respuesta = RetrofitClient.api.obtenerProductos()
+
+                //Obtener productos mediante get
+                // Ejecuta la petición GET definida en ApiService y espera la respuesta de la API.
+                val respuesta = RetrofitClient.api.obtenerProductos() //Generar la petición
                 if (respuesta.isSuccessful) {
+                    // Obtiene el cuerpo de la respuesta HTTP convertido por Retrofit/Gson al tipo RespuestaApi<List<Producto>>.
                     val datos = respuesta.body()
                     Log.d("API_TEST", "Respuesta: $datos")
 
+                    // Si la respuesta contiene "data", se asigna la lista de productos.
+                    // Si "data" es null, se utiliza una lista vacía para evitar valores nulos.
                     productos = datos?.data ?: emptyList()
-                } else {
+
+                } else { // La API respondió, pero con un código HTTP de error, (ej. 400, 404 o 500.)
                     Log.e(
                         "API_TEST",
                         "Error HTTP: ${respuesta.code()}"
                     )
                 }
-            } catch (e: Exception) {
+            } catch (e: Exception) { // Ocurrió un problema al realizar la petición, por ejemplo falta de conexión o servidor inaccesible.
                 Log.e(
                     "API_TEST",
                     "Error de conexión: ${e.message}",
@@ -68,11 +82,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Composable encargado de mostrar la lista de productos.
 @Composable
 fun ListaProductos(productos: List<Producto>) {
     // Mostrar los productos
     LazyColumn {
-        items(productos){ producto ->
+        items(productos) { producto ->
             Text(text = "${producto.Nombre} - $${producto.Precio}")
 
         }
