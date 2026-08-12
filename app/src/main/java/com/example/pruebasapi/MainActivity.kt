@@ -29,16 +29,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
@@ -61,7 +57,10 @@ class MainActivity : ComponentActivity() {
                     //Llama a la función de construcción de la lista
                     //ListaProductos(productos = productos)
                     FormularioProducto(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onCrearProducto = { producto ->
+                            crearProducto(producto)
+                        }
                     )
                 }
             }
@@ -122,10 +121,44 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    private fun crearProducto(producto: CrearProducto) {
+
+        lifecycleScope.launch {
+
+            try {
+
+                val respuesta = RetrofitClient.api.crearProducto(producto)
+
+                if (respuesta.isSuccessful) {
+
+                    Log.d(
+                        "API_TEST",
+                        "Producto creado: ${respuesta.body()}"
+                    )
+
+                } else {
+
+                    Log.e(
+                        "API_TEST",
+                        "Error HTTP POST: ${respuesta.code()}"
+                    )
+                }
+
+            } catch (e: Exception) {
+
+                Log.e(
+                    "API_TEST",
+                    "Error de conexión POST: ${e.message}",
+                    e
+                )
+            }
+        }
+    }
 }
 
 @Composable
-fun FormularioProducto(modifier: Modifier = Modifier) {
+fun FormularioProducto(modifier: Modifier = Modifier, onCrearProducto: (CrearProducto) -> Unit) {
 
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
@@ -190,9 +223,31 @@ fun FormularioProducto(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
 
+        //Botón
         Button(
             onClick = {
-                // Aquí posteriormente haremos el POST
+                val precioNumero = precio.toDoubleOrNull()
+                val stockNumero = stock.toIntOrNull()
+                val categoriaNumero = categoria.toIntOrNull()
+
+                if (nombre.isNotBlank() &&
+                    precioNumero != null &&
+                    stockNumero != null &&
+                    categoriaNumero != null &&
+                    codigo.isNotBlank()
+                ) {
+
+                    val nuevoProducto = CrearProducto(
+                        nombre = nombre,
+                        precio = precioNumero,
+                        stock = stockNumero,
+                        categoria = categoriaNumero,
+                        codigo = codigo,
+                        activo = 1
+                    )
+
+                    onCrearProducto(nuevoProducto)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -233,6 +288,9 @@ fun CampoProducto(
 @Composable
 fun Preview() {
     PruebasApiTheme {
-        FormularioProducto()
+        FormularioProducto(
+            onCrearProducto = { producto ->
+            }
+        )
     }
 }
