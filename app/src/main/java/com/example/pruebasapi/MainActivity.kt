@@ -24,6 +24,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.unit.dp
+
 class MainActivity : ComponentActivity() {
     // Lista de productos. Inicialmente está vacía.
     // Al cambiar su valor, Compose detecta el cambio y recompone
@@ -42,7 +59,10 @@ class MainActivity : ComponentActivity() {
 //                    )
 
                     //Llama a la función de construcción de la lista
-                    ListaProductos(productos = productos)
+                    //ListaProductos(productos = productos)
+                    FormularioProducto(
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }
@@ -73,26 +93,26 @@ class MainActivity : ComponentActivity() {
                 }
 
                 //Crear productos mediante post
-                val nuevoProducto = CrearProducto(
-                    nombre = "Pera",
-                    precio = 7.0,
-                    stock = 30,
-                    categoria = 2,
-                    codigo = "C-300",
-                    activo = 1
-                )
-                val respuestaPost = RetrofitClient.api.crearProducto(nuevoProducto)
-                if (respuestaPost.isSuccessful) {
-                    Log.d(
-                        "API_TEST",
-                        "Producto creado: ${respuestaPost.body()}"
-                    )
-                } else {
-                    Log.e(
-                        "API_TEST",
-                        "Error HTTP POST: ${respuestaPost.code()}"
-                    )
-                }
+//                val nuevoProducto = CrearProducto(
+//                    nombre = "Pera",
+//                    precio = 7.0,
+//                    stock = 30,
+//                    categoria = 2,
+//                    codigo = "C-300",
+//                    activo = 1
+//                )
+//                val respuestaPost = RetrofitClient.api.crearProducto(nuevoProducto)
+//                if (respuestaPost.isSuccessful) {
+//                    Log.d(
+//                        "API_TEST",
+//                        "Producto creado: ${respuestaPost.body()}"
+//                    )
+//                } else {
+//                    Log.e(
+//                        "API_TEST",
+//                        "Error HTTP POST: ${respuestaPost.code()}"
+//                    )
+//                }
             } catch (e: Exception) { // Ocurrió un problema al realizar la petición, por ejemplo falta de conexión o servidor inaccesible.
                 Log.e(
                     "API_TEST",
@@ -100,6 +120,83 @@ class MainActivity : ComponentActivity() {
                     e
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun FormularioProducto(modifier: Modifier = Modifier) {
+
+    var nombre by remember { mutableStateOf("") }
+    var precio by remember { mutableStateOf("") }
+    var stock by remember { mutableStateOf("") }
+    var categoria by remember { mutableStateOf("") }
+    var codigo by remember { mutableStateOf("") }
+
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding()
+            .padding(16.dp)
+    ) {
+
+        Text(
+            text = "Crear producto",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        //Nombre
+        CampoProducto(
+            valor = nombre,
+            alCambiar = { nombre = it },
+            etiqueta = "Nombre"
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //Precio
+        CampoProducto(
+            valor = precio,
+            alCambiar = { precio = it },
+            etiqueta = "Precio"
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //Stock
+        CampoProducto(
+            valor = stock,
+            alCambiar = { stock = it },
+            etiqueta = "Stock"
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //categoria
+        CampoProducto(
+            valor = categoria,
+            alCambiar = { categoria = it },
+            etiqueta = "Categoría"
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //Codigo
+        CampoProducto(
+            valor = codigo,
+            alCambiar = { codigo = it },
+            etiqueta = "Código"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                // Aquí posteriormente haremos el POST
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear producto")
         }
     }
 }
@@ -117,17 +214,25 @@ fun ListaProductos(productos: List<Producto>) {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun CampoProducto(
+    valor: String,
+    alCambiar: (String) -> Unit,
+    etiqueta: String
+) {
+
+    OutlinedTextField(
+        value = valor,
+        onValueChange = alCambiar,
+        label = { Text(etiqueta) },
+        modifier = Modifier
+            .fillMaxWidth()
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun Preview() {
     PruebasApiTheme {
-        Greeting("Android")
+        FormularioProducto()
     }
 }
