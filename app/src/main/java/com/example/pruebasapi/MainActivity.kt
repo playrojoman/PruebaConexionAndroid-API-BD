@@ -71,6 +71,28 @@ class MainActivity : ComponentActivity() {
                         "Error HTTP: ${respuesta.code()}"
                     )
                 }
+
+                //Crear productos mediante post
+                val nuevoProducto = CrearProducto(
+                    nombre = "Pera",
+                    precio = 7.0,
+                    stock = 30,
+                    categoria = 2,
+                    codigo = "C-300",
+                    activo = 1
+                )
+                val respuestaPost = RetrofitClient.api.crearProducto(nuevoProducto)
+                if (respuestaPost.isSuccessful) {
+                    Log.d(
+                        "API_TEST",
+                        "Producto creado: ${respuestaPost.body()}"
+                    )
+                } else {
+                    Log.e(
+                        "API_TEST",
+                        "Error HTTP POST: ${respuestaPost.code()}"
+                    )
+                }
             } catch (e: Exception) { // Ocurrió un problema al realizar la petición, por ejemplo falta de conexión o servidor inaccesible.
                 Log.e(
                     "API_TEST",

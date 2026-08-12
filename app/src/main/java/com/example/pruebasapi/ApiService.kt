@@ -11,6 +11,6 @@ interface ApiService {
     suspend fun obtenerProductos(): Response<RespuestaApi<List<Producto>>>
 
     @POST("producto/crear.php")
-    suspend fun crearProducto(@Body producto: CrearProducto): Response<RespuestaApi<Producto>>
+    suspend fun crearProducto(@Body producto: CrearProducto): Response<RespuestaApi<ProductoCreado>>
 
 }
