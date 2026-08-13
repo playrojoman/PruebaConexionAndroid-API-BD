@@ -49,11 +49,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             PruebasApiTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-
                     //Llama a la función de construcción de la lista
                     //ListaProductos(productos = productos)
                     FormularioProducto(
@@ -122,6 +117,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    //Método encargado de usar Retrofit para crear la conexión con la API
     private fun crearProducto(producto: CrearProducto) {
 
         lifecycleScope.launch {
@@ -157,6 +153,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//Fin de la clase Main Activity
+// Inicio de componentes
+
 @Composable
 fun FormularioProducto(modifier: Modifier = Modifier, onCrearProducto: (CrearProducto) -> Unit) {
 
@@ -176,6 +175,7 @@ fun FormularioProducto(modifier: Modifier = Modifier, onCrearProducto: (CrearPro
             .padding(16.dp)
     ) {
 
+        //Titulo
         Text(
             text = "Crear producto",
             style = MaterialTheme.typography.headlineSmall
@@ -223,13 +223,14 @@ fun FormularioProducto(modifier: Modifier = Modifier, onCrearProducto: (CrearPro
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        //Botón
+        //Botón de acción de registro
         Button(
             onClick = {
                 val precioNumero = precio.toDoubleOrNull()
                 val stockNumero = stock.toIntOrNull()
                 val categoriaNumero = categoria.toIntOrNull()
 
+                //Verificación de los datos antes de ingresarlos
                 if (nombre.isNotBlank() &&
                     precioNumero != null &&
                     stockNumero != null &&
@@ -268,6 +269,8 @@ fun ListaProductos(productos: List<Producto>) {
     }
 }
 
+//Componente generico para mostrar cada uno de los campos del formulario
+//Gracias a que todos usan la misma estructura
 @Composable
 fun CampoProducto(
     valor: String,
@@ -284,6 +287,7 @@ fun CampoProducto(
     )
 }
 
+//Preview
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
